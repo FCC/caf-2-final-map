@@ -19,65 +19,9 @@ var geo_space = 'geo_swat';
 var geo_output = 'application/json'
 
 var nn = 0;
-
 var map;
-var shownPolySAC;
-var shownPolySA;
 var shownPolyCounty;
-var shownPolyCountyOther;
-var clickedPoly;
-var isInsidePolyC = false;
-var isInsidePoly = false;
 
-var clickedPolyList = [];
-var clickedPolyList = [];
-var clickedPolyData = [];
-
-var otherCountyDataNow;
-var otherCountyDataNow_str;
-
-var codeNowSAC;
-var codeNowSA;
-
- var dataNowSAC = {
-     "totalFeatures": 0
- };
- var dataNowSA = {
-     "totalFeatures": 0
- };
-
-var dataCredential = {};
-var xNow;
-var yNow;
-
- var shownPolyOptionSAC = {
-     'color': '#ffff21',
-     'fillColor': '#ffff21',
-     'weight': 5,
-     'fillOpacity': 0.2
- }
-
-var shownPolyOptionSA = {
-     'color': '#ffff00',
-     'fillColor': '#999',
-     'weight': 3,
-     'fillOpacity': 0.0
- }
- 
-var shownPolyOptionOther = {
-     'color': '#333',
-     'fillColor': '#000',
-     'weight': 1,
-     'fillOpacity': 0.75
- }
-
-var clickedPolyOption = {
-     'color': '#00ff00',
-     'fillColor': '#00ff00',
-     'weight': 4,
-     'fillOpacity': 0.25
- }
- 
  var countyStyleHidden = {
           weight: 0,
           opacity: 0.0,
@@ -87,7 +31,7 @@ var clickedPolyOption = {
 	  
  var countyStyleShown = {
 	color: '#FFFF00',
-    weight: 3,
+    weight: 5,
     opacity: 1.0,
     fillOpacity: 0.0
       };
@@ -115,36 +59,36 @@ var clickedPolyOption = {
      baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
      baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
 
-    var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
+    var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_1'
      });
 
-    var wms_nonfrozen_class_2 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
+    var wms_nonfrozen_class_2 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_2'
      });
 	 
-	var wms_nonfrozen_class_3 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
+	var wms_nonfrozen_class_3 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_3'
      });
 	 
-	var wms_nonfrozen_class_4 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
+	var wms_nonfrozen_class_4 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_4'
      });
 	 
-	var wms_frozen = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
+	var wms_frozen = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_frozen'
     });
-	var wms_counties_merge = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
+	var wms_counties_merge = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_caf_counties_merge'
