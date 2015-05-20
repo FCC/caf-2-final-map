@@ -13,7 +13,8 @@ var geo_space = 'fcc';
 var geo_output = 'json'
 */
 
-var geo_host = 'http://ldevtm-geo02:8080';
+//var geo_host = 'http://ldevtm-geo02:8080';
+var geo_host = 'http://ltsttm-geo02a:8080';
 var geo_space = 'geo_swat';
 var geo_output = 'application/json'
 
@@ -23,6 +24,7 @@ var map;
 var shownPolySAC;
 var shownPolySA;
 var shownPolyCounty;
+var shownPolyCountyOther;
 var clickedPoly;
 var isInsidePolyC = false;
 var isInsidePoly = false;
@@ -30,6 +32,9 @@ var isInsidePoly = false;
 var clickedPolyList = [];
 var clickedPolyList = [];
 var clickedPolyData = [];
+
+var otherCountyDataNow;
+var otherCountyDataNow_str;
 
 var codeNowSAC;
 var codeNowSA;
@@ -52,19 +57,48 @@ var yNow;
      'fillOpacity': 0.2
  }
 
-  var shownPolyOptionSA = {
-     'color': '#fff',
+var shownPolyOptionSA = {
+     'color': '#ffff00',
      'fillColor': '#999',
      'weight': 3,
      'fillOpacity': 0.0
  }
+ 
+var shownPolyOptionOther = {
+     'color': '#333',
+     'fillColor': '#000',
+     'weight': 1,
+     'fillOpacity': 0.75
+ }
 
-  var clickedPolyOption = {
+var clickedPolyOption = {
      'color': '#00ff00',
      'fillColor': '#00ff00',
      'weight': 4,
      'fillOpacity': 0.25
  }
+ 
+ var countyStyleHidden = {
+          weight: 0,
+          opacity: 0.0,
+          color: 'black',
+          fillOpacity: 0.0
+      };
+	  
+ var countyStyleShown = {
+	color: '#FFFF00',
+    weight: 3,
+    opacity: 1.0,
+    fillOpacity: 0.0
+      };
+	  
+ var countyStyleSearched = {
+	color: '#FFFF00',
+	fillColor: '#FFFFFF',
+    weight: 5,
+    opacity: 1.0,
+    fillOpacity: 0.0
+      };
 
  function createMap() {
  
@@ -81,36 +115,36 @@ var yNow;
      baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
      baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
 
-    var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/geoserver/wms', {
+    var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_1'
      });
 
-    var wms_nonfrozen_class_2 = L.tileLayer.wms(geo_host +'/geoserver/wms', {
+    var wms_nonfrozen_class_2 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_2'
      });
 	 
-	var wms_nonfrozen_class_3 = L.tileLayer.wms(geo_host +'/geoserver/wms', {
+	var wms_nonfrozen_class_3 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_3'
      });
 	 
-	var wms_nonfrozen_class_4 = L.tileLayer.wms(geo_host +'/geoserver/wms', {
+	var wms_nonfrozen_class_4 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_4'
      });
 	 
-	var wms_frozen = L.tileLayer.wms(geo_host +'/geoserver/wms', {
+	var wms_frozen = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_frozen'
     });
-	var wms_counties_merge = L.tileLayer.wms(geo_host +'/geoserver/wms', {
+	var wms_counties_merge = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_caf_counties_merge'
@@ -136,322 +170,63 @@ var yNow;
      }, {
          position: 'topleft'
      }).addTo(map);
-	 
-	map.on("click", function(e) {
-		clickPoly(e);
-	}); 	 
-	 
-	var gx = 0;
-	var gy = 0;
-	var nx, ny;
-	var gsize = 16;
-	 
-	map.on("mousemove", function(e){		
-		
-		nx = Math.floor(e.containerPoint.x/gsize);
-		ny = Math.floor(e.containerPoint.y/gsize);		
-		
-		if ((nx == gx) && (ny == gy) ){	
-			// same grid
-		}
-		else {		
-			
-			gx = nx; 
-			gy = ny; 
-			
-			var lat = e.latlng.lat;
-			var lng = e.latlng.lng;		
-
-			//SA
-			var urlPolySA = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":caftwo_caf_counties_merge&maxFeatures=1&outputFormat="+ geo_output +"&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))";
-			//var urlPolySA = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sa&maxFeatures=1&outputFormat="+ geo_output +"&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))";
-			var urlPolySA = "http://ldevtm-geo02:8080/geoserver/geo_swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geo_swat:caftwo_caf_counties_merge&maxFeatures=50&outputFormat=text/javascript&cql_filter=contains(geom,POINT(" + lng + " " + lat + "))";
-
-			isInsidePoly = false;
-			if (map.hasLayer(shownPolyCounty)) {
-				var results = leafletPip.pointInLayer([lng, lat], shownPolyCounty);
-				if (results.length > 0) {
-					isInsidePoly = true;
-				}
-			}
-			
-			
-			if ( !isInsidePoly ) {			
-			
-				$.ajax({
-					type: "GET",
-					url: urlPolySA,
-					//dataType: "json",
-					dataType: "jsonp",
-					jsonpCallback: "parseResponse",
-					success: function(data) {
-					if (data.totalFeatures > 0) {
-					if (map.hasLayer(shownPolyCounty)) {
-					map.removeLayer(shownPolyCounty);
-					}
-					shownPolyCounty = L.mapbox.featureLayer(data).setStyle(shownPolyOptionSA).addTo(map);
-					nn++;
-					
-					var p = data.features[0].properties;
-					var tooltipTxt = p.county + ", " + p.state + "<br>Total Price Cap County Locations: " + p.total_pc + "<br>";
-					tooltipTxt += "Price Cap County Supported Locations: " + p.supported + "<br>";
-					tooltipTxt += "Price Cap County Support: $" + p.pc_support;
-					
-					$("#tooltip_box_div").html(tooltipTxt);
-					$("#tooltip_box_div").show();
-					$("#display").html('debugging: total ajax requests: ' + nn + ', county fips: ' + data.features[0].properties.fips);
-					}
-					}
-				});
-			}
-		}
-	});
-
  }
  
 function parseResponse(data) {
 
 }
 
- $('#btn-street').on('click', function(e) {
-     e.preventDefault();
-     changeBaseLayer('street');
- });
- $('#btn-satellite').on('click', function(e) {
-     e.preventDefault()
-     changeBaseLayer('satellite');
- });
- $('#btn-topo').on('click', function(e) {
-     e.preventDefault();
-     changeBaseLayer('topo');
- });
+function applyCountyLayer() {
 
- function changeBaseLayer(type) {
+countyLayer = L.geoJson(all_counties,  {
+      style: countyStyleHidden,
+      onEachFeature: onEachFeature
+  }).addTo(map);
+}
 
-     map.removeLayer(baseStreet);
-     map.removeLayer(baseSatellite);
-     map.removeLayer(baseTerrain);
+function onEachFeature(feature, layer) {
+      layer.on({
+		mouseover: mouseover,
+        mouseout: mouseout
+      });
+  }
 
-     if (type == 'street') {
-         baseStreet.addTo(map);
-         toggleClass(type);
-     }
-     if (type == 'satellite') {
-         baseSatellite.addTo(map);
-         toggleClass(type);
-     }
-     if (type == 'topo') {
-         baseTerrain.addTo(map);
-         toggleClass(type);
-     }
+function mouseover(e) {
 
- }
-
- function toggleClass(type) {
-
-     $('#btn-street').removeClass('btn-baselayer-control-selected');
-     $('#btn-satellite').removeClass('btn-baselayer-control-selected');
-     $('#btn-topo').removeClass('btn-baselayer-control-selected');
-
-     $('#btn-' + type).addClass('btn-baselayer-control-selected');
- }
-
-function hoverPoly(data, type) {
-	//console.log('hoverpoly type: ' + type);
-	if (type === 'sa') {		
-		//console.log('hoverpoly sa');
-		if (map.hasLayer(shownPolySA)) {
-			map.removeLayer(shownPolySA);
-		}
-		
-		dataNowSA = data;
-		
-		if (data.features.length > 0) {
-			
-			var featureSA_id = data.features[0].id.replace(/\..*$/, '');
-			//console.log('featureSA_id sa : '+ featureSA_id);
-			
-			if (featureSA_id == "ror_sac") {
+var layer = e.target;
+var p = layer.feature.properties;
+var tooltipTxt = makeTooltipTxt(p);
 				
-				//console.log(' ror_sac');				
-				return;
-			}
+$("#tooltip_box_div").html(tooltipTxt);
+$("#tooltip_box_div").show();
 
-			if (dataNowSA.totalFeatures == 0) {
-				$("#tooltip_box_div").hide();
-				map.removeLayer(shownPolySA);
-				return;
-			}
-			
-			var sac = dataNowSA.features[0].properties.sac;
-			var sa = dataNowSA.features[0].properties.sa;
-			var company = dataNowSA.features[0].properties.company;
-			var source = dataNowSA.features[0].properties.node0sourc;
+//set county border style
+layer.setStyle(countyStyleShown);
 
-			shownPolySA = L.mapbox.featureLayer(dataNowSA).setStyle(shownPolyOptionSA).addTo(map);
-			shownPolySA.on("click", function(e) {
-				clickPoly(e);
-			});
+}
 
-			shownPolySA.setZIndex(999);
-			var text = "Study Area Code:" + sac + 
-				"<br/ > Company:" + company + 
-				"<br/ > Service Area:" + sa + 
-				"<br />Source: " + source;
+function mouseout(e) {
+var layer = e.target;
+layer.setStyle(countyStyleHidden);
+$("#tooltip_box_div").hide();
+}
 
-			$("#feature_display_div").html(text);
-			$("#tooltip_box_div").show();
-			
-			// get sac layer
-			
-			codeNowSA = sac;			
+function makeTooltipTxt(p) {
+var tooltipTxt = "<table width=100%>";
+tooltipTxt += "<tr><td cellspan=2 align=center><b>" + p.county + ", " + p.state + "</b></td></tr>";
 
-			if (codeNowSAC != codeNowSA) {	
+tooltipTxt += "<tr><td>Total Price Cap County Locations:</td><td align=right>" +  p.total_pc + "</td></tr>";
+tooltipTxt +=  "<tr><td>Price Cap County Supported Locations:</td><td align=right>" + p.supported + "</td></tr>";
+tooltipTxt += "<tr><td>Price Cap County Support:</td><td align=right>" +  "$" + p.pc_support + "</td></tr></table>";
 
-				//var urlPolySAC = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sac&maxFeatures=1&outputFormat="+ geo_output +"&cql_filter=sac="+ sac +"&format_options=callback:callbackSAC";
-				var urlPolySAC = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sac&maxFeatures=10&outputFormat="+ geo_output +"&cql_filter=sac="+ sac +"";
-
-				$.ajax({
-					type: "GET",
-					url: urlPolySAC,
-					dataType: "json",
-					//dataType: "jsonp",
-					//jsonpCallback: "callbackSAC",
-					success: function(dataSAC) {
-						hoverPoly(dataSAC, 'sac');						
-					}
-				});	
-			}			
-		}
-		else {
-			
-			//console.log('remove sac');
-			
-			if (map.hasLayer(shownPolySAC)) {
-				map.removeLayer(shownPolySAC);
-			}
-			codeNowSAC = false;
-			$("#tooltip_box_div").hide();			
-		}
-	}
-	else if (type === 'sac') {	
-	
-		//console.log('hoverpoly sac');
-		
-		if (map.hasLayer(shownPolySAC)) {
-			map.removeLayer(shownPolySAC);
-		}
-		
-		dataNowSAC = data;		
-		
-		if (data.features.length > 0) {
-		
-			 var featureSAC_id = data.features[0].id.replace(/\..*$/, '');
-			 //console.log('featureSAC_id : '+ featureSAC_id);
-			 
-			 if (featureSAC_id == "ror_sa") {
-				//console.log(' ror_sa');
-				return;
-			 }
-			 
-			 var sac = dataNowSAC.features[0].properties.sac;
-			//console.log('sac : ' + sac );			 
-			codeNowSAC = sac;
-			//console.log('codeNowSAC : ' + codeNowSAC );				 
-
-			 shownPolySAC = L.mapbox.featureLayer(dataNowSAC).setStyle(shownPolyOptionSAC).addTo(map);
-			 shownPolySAC.on("click", function(e) {
-				clickPoly(e);
-			});
-
-			 shownPolySAC.setZIndex(888);
-		}	
-	}
- }
-
- function clickPoly(e) { 
-	
-	
-	//console.log('clickedPolyList : '+  clickedPolyList );
-	//console.log('clickedPolyList.length : '+  clickedPolyList.length );	
-	
-	//console.log('dataNowSA.totalFeatures : '+  dataNowSA.totalFeatures );
-	
-     if (dataNowSA.totalFeatures == 0) {
-         
-		 //clearClickedPoly();
-		 
-		 $("#tooltip_box_div").hide();
-     }
-	 else {
-
-		var inPolyList = $.inArray(codeNowSAC, clickedPolyList);
-
-		//console.log('inPolyList : ' + inPolyList);
-		 
-		if (inPolyList < 0) {	
-			
-			//console.log('clickedPolyList.length : '+  clickedPolyList.length );	
-			
-			clearClickedPoly();
-
-			//console.log('clickedPolyList.length : '+  clickedPolyList.length );	
-			//console.log('clickedPolyData.length : '+  clickedPolyData.length );	
-		
-			var clickedPolyLayer = L.mapbox.featureLayer(dataNowSAC).setStyle(clickedPolyOption).addTo(map);
-			
-			clickedPolyLayer.on("click", function(e) {
-				clickPoly(e);
-			});			
-			
-			clickedPolyList.push(codeNowSAC);
-			clickedPolyData.push(clickedPolyLayer);		
-			
-		}
-		else {
-			
-			if (map.hasLayer(clickedPolyData[inPolyList])) {
-				map.removeLayer(clickedPolyData[inPolyList]);
-			}
-			
-			clickedPolyList.splice(inPolyList, 1);
-			clickedPolyData.splice(inPolyList, 1);
-		}
-	}	
-
-	setDownloadSelect();
-
-	//console.log('clickedPolyList : '+  clickedPolyList );
-
- }
- 
- function clearClickedPoly() {
-	
-	//console.log('clearClickedPoly : ' );	
-	
-	for (var i = 0; i < clickedPolyData.length; i++){
-		
-		if (map.hasLayer(clickedPolyData[i])) {
-			map.removeLayer(clickedPolyData[i]);
-		}
-	}
-	clickedPolyList.length = 0;
-	clickedPolyData.length = 0;
-	
-	setDownloadSelect();
- }
-
+return tooltipTxt;
+}
 
  function setListener() {
 
      $("#input-loc-search").on("click", function(e) {
          e.preventDefault();
          locChange();
-     });
-	 
-	 $("#input-sac-search").on("click", function(e) {
-         e.preventDefault();
-         searchSAC();
      });
 
      $('#btn-geoLocation').click(function(event) {
@@ -481,84 +256,6 @@ function hoverPoly(data, type) {
 		 map.setView([40, -97], 3);
      });
 
-     $("#map").on("mousemove", function(e) {
-         xNow = e.pageX;
-         yNow = e.pageY;
-     });
-
-     $("#x-download").on("click", function(e) {
-         $("#download_display_div").hide();
-     });
-
-
-     $("#download_select").on("change", function(e) {
-         e.preventDefault();
-         $("#warning-display").html("");
-     });
-
-
-    $( "#input-sac" ).autocomplete({
-        source: function( request, response ) {
-			var sac = request.term;
-			//var urlAutoComp = geo_host +"/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName="+ geo_space +":ror_sac&count=10&propertyName=sac&outputFormat="+ geo_output +"&sortBy=sac&cql_filter=sac+like+'" + sac + "%25'&format_options=callback:callbackAutoComp";
-			var urlAutoComp = geo_host +"/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeName="+ geo_space +":ror_sac&count=10&propertyName=sac&outputFormat="+ geo_output +"&sortBy=sac&cql_filter=sac+like+'" + sac + "%25'";
-
-			$.ajax({
-				type: "GET",
-				url: urlAutoComp,
-				dataType: "json",
-				//dataType: "jsonp",
-				//jsonpCallback: "callbackAutoComp",
-				success: function( data ) {
-					var features = data.features;
-					sac_list = [];
-					for (var i = 0; i < features.length; i++) {
-						sac_list.push(features[i].properties.sac);
-					}
-
-					response( sac_list );
-				}
-			});
-        },
-        minLength: 2,
-        select: function( event, ui ) {
-            setTimeout(function() {searchSAC();}, 200);
-			//searchSAC();
-        },
-        open: function() {
-			$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-        },
-        close: function() {
-			$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-        }
-	});
-	
-	$("#input-search-switch").on('click', 'a', function(e) {
-		var search = $(e.currentTarget).data('value');
-
-		e.preventDefault();	
-
-		$("#input-sac").val('');
-        $("#input-location").val('');
-		
-		if (search == 'loc') {
-			$("#input-sac").css('display', 'none');
-			$("#span-sac-search").css('display', 'none');
-			
-			$("#input-location").css('display', 'block');
-			$("#span-location-search").css('display', 'table-cell');
-			$("#btn-label").text('Location');
-        }
-        else {
-            $("#input-sac").css('display', 'block');
-            $("#span-sac-search").css('display', 'table-cell');
-			
-            $("#input-location").css('display', 'none');
-            $("#span-location-search").css('display', 'none');
-            $("#btn-label").text('SAC');
-        }
-	});
-
 	$('#input-location').keypress(function (e) {
 	 var key = e.which;
 	 if(key == 13)  // the enter key code
@@ -570,49 +267,7 @@ function hoverPoly(data, type) {
     
  }
  
-function searchedPoly(data){
 
-	clearClickedPoly();
-
-	//console.log('clickedPolyList.length : '+  clickedPolyList.length );	
-	
-	var sac = data.features[0].properties.sac;	
-	codeNowSAC = sac;
-	
-	//console.log('codeNowSAC : ' +  codeNowSAC );
-	
-	var searchedPolyLayer = L.mapbox.featureLayer(data).setStyle(clickedPolyOption).addTo(map);
-	
-	searchedPolyLayer.on("click", function(e) {
-		clickPoly(e);
-	});		
-
-	map.fitBounds(searchedPolyLayer.getBounds());		
-	
-	clickedPolyList.push(codeNowSAC);
-	clickedPolyData.push(searchedPolyLayer);		
-	
-	setDownloadSelect();
-}
-
-function searchSAC() {
-
-	var sac = $("#input-sac").val();
-	//var urlSearch = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sac&maxFeatures=1&outputFormat="+ geo_output +"&cql_filter=sac="+ sac +"&format_options=callback:callbackSearch";
-	var urlSearch = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sac&maxFeatures=1&outputFormat="+ geo_output +"&cql_filter=sac="+ sac +"";
-	
-	$.ajax({
-		type: "GET",
-		url: urlSearch,
-		dataType: "json",
-		//dataType: "jsonp",
-		//jsonpCallback: "callbackSearch",
-		success: function( data ) {			
-			searchedPoly(data);			
-		}
-	});
-}
- 
  function locChange() {
 
      var loc = $("#input-location").val();
@@ -620,24 +275,55 @@ function searchSAC() {
  }
 
  function codeMap(err, data) {
+ 
+	if (data.latlng) {
+		var lat = data.latlng[0];
+		var lon = data.latlng[1];
+    }
+	else if (data.lbounds) {
+		var lat = (data.lbounds.getSouth() + data.lbounds.getNorth()) / 2;
+		var lon = (data.lbounds.getWest() + data.lbounds.getWest()) / 2;
+    }
+	else {
+	return;
+	}
+	
+	var url = geo_host + "/geoserver/" + geo_space + "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geo_swat:caftwo_caf_counties_merge&maxFeatures=1&outputFormat=text/javascript&cql_filter=contains(geom,POINT(" + lon + " " + lat + "))" + "&format_options=callback:showSearchedCounty";
 
-     var lat = data.latlng[0];
-     var lon = data.latlng[1];
-
-     if (data.lbounds) {
-         map.fitBounds(data.lbounds);
-     } else if (data.latlng) {
-         map.setView([lat, lon], 15);
-     }
+	$.ajax({
+			type: "GET",
+			url: url,
+			//dataType: "json",
+			dataType: "jsonp",
+			jsonpCallback: "parseResponse",
+			success: function(data) {
+									
+			}
+		});
  }
+ 
+ function showSearchedCounty(data) {
+ 	if (data.totalFeatures > 0) {
+	if (map.hasLayer(shownPolyCounty)) {
+		map.removeLayer(shownPolyCounty);
+	}
+	shownPolyCounty = L.mapbox.featureLayer(data).setStyle(countyStyleSearched).addTo(map);
+	map.fitBounds(shownPolyCounty.getBounds());
+		
+	var p = data.features[0].properties;
 
- function showDownloadMenuBox() {
-     $("#download-menu-box").show()
- }
-
- function hideDownloadMenuBox() {
-     $("#download-menu-box").hide()
- }
+	var tooltipTxt = makeTooltipTxt(p);		
+	$("#tooltip_box_div").html(tooltipTxt);
+	$("#tooltip_box_div").show();
+			
+	shownPolyCounty.on("mouseover", function(e) {
+	if (map.hasLayer(shownPolyCounty)) {
+		map.removeLayer(shownPolyCounty);
+	}
+	});
+	
+	}	
+}
 
  function showMapLegendBox() {
      $("#map-legend-box").show()
@@ -650,8 +336,7 @@ function searchSAC() {
  $(document).ready(function() {
      createMap();
      setListener();
-
-     $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' });
+	 applyCountyLayer();
 
      $('.btn-legend').click(function(){ 
         $(this).hide();
@@ -675,180 +360,5 @@ function searchSAC() {
     });
 });
 
-function checkDownloadFeat() {
-		
-	if (typeof navigator !== "undefined" && navigator.msSaveOrOpenBlob && navigator.msSaveOrOpenBlob.bind(navigator)) {
-		//console.log('msSaveOrOpenBlob true ' );
-		//console.log('checkDownloadFeat true');
-		return true;
-	}
-	else {
-	
-		var a = document.createElement('a');
-		if (typeof a.download != "undefined") {
-			//console.log('checkDownloadFeat true');
-			return true;
-		}
-		else {
-			//console.log('checkDownloadFeat false');
-			return false;
-		}
-	}
-}
-var checkDownload = checkDownloadFeat();
 
-function downloadFile(e) {
 
-    var dataType = e.target.id;
-	
-	var outputFormat, fileFormat;
-    if (dataType == "shapefile") {
-		outputFormat = "shape-zip";
-		fileFormat = "zip";
-	}
-	else if (dataType == "geojson") {
-		//outputFormat = "application/json";
-		outputFormat = "json";
-		fileFormat = "json";
-	}	
-	else if (dataType == "csv") {
-		outputFormat = "csv";
-		fileFormat = "csv";
-	}
-	else if (dataType == "gml") {
-		outputFormat = "gml2";
-		fileFormat = "gml";
-	}
-	else if (dataType == "kml") {
-		outputFormat = "kml";
-		fileFormat = "kml";
-	}
-
-    var selected = $('input[name=radio-areas]:checked').val();		
-	var selVal = '';	
-	var urlPoly, urlPoint 
-	
-    if (selected == "all") {
-	
-		selVal = 'all';
-		
-		urlPoly = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sa&maxFeatures=100000&outputFormat=" + outputFormat;		
-		urlPoint = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_co&maxFeatures=100000&outputFormat=" + outputFormat;
-    }
-	else if (selected == "selected") {
-        var sac_tuple = "(";
-        for (var i = 0; i < clickedPolyList.length; i++){
-            sac_tuple += "'" + clickedPolyList[i] + "',";
-			
-			if ((clickedPolyList[i] != '') && (clickedPolyList[i] != 'undefined')) {			
-				if (selVal.length > 0) {
-					selVal += '-';
-				}
-				selVal += clickedPolyList[i];
-			}
-        }
-
-        sac_tuple = sac_tuple.replace(/,$/, "");
-        sac_tuple += ")";	
-
-        urlPoly = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_sa&maxFeatures=100000&outputFormat=" + outputFormat + "&cql_filter=sac+IN+" + sac_tuple;
-        urlPoint = geo_host +"/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName="+ geo_space +":ror_co&maxFeatures=100000&outputFormat=" + outputFormat + "&cql_filter=sac+IN+" + sac_tuple;
-    }	
-	
-	var zip = new JSZip();
-	
-	var statusPoly = false;
-	var statusPoint = false;
-	
-	JSZipUtils.getBinaryContent(urlPoly, function (err, data) {
-	
-		//console.log('ror-map-poly');
-		
-	   if(err) {
-		  //console.log('err poly : ' + err);
-	   }   		   
-	   zip.file("ror-map-"+ selVal +"-poly."+ fileFormat, data, {binary:true});
-	   
-		statusPoly = true;		   
-		if (statusPoly && statusPoint) { 
-			downloadZip();
-		}
-	   
-	});
-	
-	JSZipUtils.getBinaryContent(urlPoint, function (err, data) {
-	   
-	   //console.log('ror-map-point');
-	   
-	   if(err) {
-		  //console.log('err point : ' + err);
-	   }   		   
-	   zip.file("ror-map-"+ selVal +"-point." + fileFormat, data, {binary:true});
-	   
-		statusPoint = true;
-		if (statusPoly && statusPoint) { 
-			downloadZip();
-		}	   
-	});
-	
-	/*
-	try {
-		var isFileSaverSupported = !!new Blob;
-		//console.log('isFileSaverSupported : ' + isFileSaverSupported );
-		
-	} catch (e) {
-		//console.log('err isFileSaverSupported : ' + e);
-	}
-	*/	
-	
-	function downloadZip() {
-		if ( (JSZip.support.blob) && (checkDownload) ) {			
-			//console.log('ror-map-zip');			
-			try {
-				
-				var zipName = "ror-map-"+ selVal +"-"+ dataType +".zip";
-				var zipBlob = zip.generate({type:"blob"});
-				
-				saveAs(zipBlob, zipName);
-				
-			} 
-			catch(e) {
-				//console.log('err all : ' + e);
-			}
-			return false;				
-		} 
-		else {
-			//console.log('not supported on this browser ' );			
-			try {				
-				//console.log('window popups');
-				
-				var windowPoly = window.open(urlPoly, "urlPoly", config = "toolbar=0");
-				var windowPoint = window.open(urlPoint, "urlPoint", config = "toolbar=0");
-				
-				$('#download-zip-popup').show();			
-			} 
-			catch(e) {
-				//console.log('err all : ' + e);
-			}
-		}
-	}
-}
-
-function setDownloadSelect() {
-    if (clickedPolyData.length == 0) {
-        $('#all-areas').prop('checked',true);
-        $('#selected-areas').prop('checked', false);
-		
-		$("#selected-areas-poly-id").html('');
-    }
-    else {
-        $('#all-areas').prop('checked',false);
-        $('#selected-areas').prop('checked', true);		
-		
-		clickedPolyListText = ''+ clickedPolyList;
-		if (clickedPolyListText.length > 17) {
-			clickedPolyListText = clickedPolyListText.substring(0,17) + '...';
-		}		
-		$("#selected-areas-poly-id").html('('+ clickedPolyListText +')');			
-    }
-}

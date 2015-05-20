@@ -34,6 +34,7 @@
                     <div class="search-group">
                         <div class="search-input">
                             <div class="input-group">
+							<!--
                                 <div class="input-group-btn">
                                     <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default dropdown-toggle" type="button"><span id="btn-label">SAC</span> <span class="caret"></span></button>
                                     <ul id="input-search-switch" role="menu" class="dropdown-menu">
@@ -41,14 +42,19 @@
                                         <li><a href="#" data-value="sac">SAC</a></li>
                                     </ul>
                                 </div>
-                                <input id="input-location" class="form-control" type="search" placeholder="Enter Location" style="display: none">
-                                <input id="input-sac" class="form-control" type="search" placeholder="Enter SAC" style="display: block">
-                                <span class="input-group-btn" id="span-location-search" style="display: none">                        
+								
+								-->
+								
+                                <input id="input-location" class="form-control" type="search" placeholder="Enter Location" style="display: block">
+                                <input id="input-sac" class="form-control" type="search" placeholder="Enter SAC" style="display: none">
+                                <span class="input-group-btn" id="span-location-search" style="display: table-cell">                        
 									<button class="btn-search btn btn-default" type="submit" id="input-loc-search" title="Location Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">Location Search</span></button>
                                 </span>
+								<!--
                                 <span class="input-group-btn" id="span-sac-search" style="display: table-cell">                        
 									<button class="btn-search btn btn-default" id="input-sac-search" title="SAC Search" data-toggle="tooltip" data-placement="top"><span class="glyphicon glyphicon-search"></span><span class="sr-only">SAC Search</span></button>
                                 </span>
+								-->
                             </div>
                         </div>
                         <div class="btn-group-loc">
@@ -112,25 +118,25 @@
 							</div>
 							<dl class="dl-legend" style=" margin: 1px; padding: 3px;">
 								<dt style="vertical-align: center">
-									<div style="width: 16px; height: 16px; background-color: #88B99C;"></div>
+									<div style="width: 16px; height: 16px; background-color: #d7191c; opacity: 0.6"></div>
 								</dt>
 								<dd>Eligible</dd>
 								<dt>
-									<div style="width: 16px; height: 16px; background-color: #E09392"></div>
+									<div style="width: 16px; height: 16px; background-color: #6CB169; opacity: 0.6" ></div>
 								</dt>
-								<dd>Abv Benchmark</dd>
+								<dd>Ineligible - Exceeds Benchmark</dd>
 								<dt>
-									<div style="width: 16px; height: 16px; background-color: #E4D094"></div>
+									<div style="width: 16px; height: 16px; background-color: #002966; opacity: 0.6"></div>
 								</dt>
-								<dd>Blw Benchmark</dd>
+								<dd>Ineligible - Below Benchmark</dd>
 								<dt>
-									<div style="width: 16px; height: 16px; background-color: #C3F098"></div>
+									<div style="width: 16px; height: 16px; background-color: #A6CEE3; opacity: 0.6"></div>
 								</dt>
 								<dd>Other Ineligible</dd>
 								<dt>
-									<div style="width: 16px; height: 16px; background-color: #506AA6"></div>
+									<div style="width: 16px; height: 16px; background-color: #32005D; opacity: 0.6"></div>
 								</dt>
-								<dd style="vertical-align: center">Selected Frozen</dd>
+								<dd>Elected Frozen</dd>
 							</dl>
 						</div>						
 					</div>
@@ -145,7 +151,7 @@
             </div>
         </div>
 		
-		<div id=display>OOOOOOOOOOOOOOOOOOOOOOOO</div>
+		<div id=display></div>
     </main>
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -157,6 +163,7 @@
     <script src="//api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js"></script>
     <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js"></script>
     <script src="js/app.js"></script>
+	<script src="js/all_counties_0.01.js"></script>
     <script>
     $(function() {
         //$("#include-about").load("about.html");

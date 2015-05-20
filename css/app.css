@@ -76,10 +76,10 @@ footer .bull { font-size: 16px; margin: 0 10px; }
 .map-legend-hd .icon-legends-2 { background-color: transparent; font-size: 10px; }
 .map-legend-hd .map-legend-name { font-size: 13px; font-weight: bold; }
 .map-legend-desc { font-size: 13px; font-style: italic; text-align: center; width: 100%; }
-.legend { background-color: rgba(255, 255, 255, 0.9); border: 1px solid #888888; border-radius: 3px; bottom: -5px; color: #333; width: 150px; }
+.legend { background-color: rgba(255, 255, 255, 0.9); border: 1px solid #888888; border-radius: 3px; bottom: -5px; color: #333; width: 250px; }
 .dl-legend { margin: 10px; margin-bottom: 5px; }
 .dl-legend dt { float: left; margin-bottom: 5px; font-size: 13px; text-align: left; width: 20px; }
-.dl-legend dd { color: #000; font-size: 13px; margin-bottom: 5px; margin-left: 25px; position: relative; top: -2px; }
+.dl-legend dd { color: #000; font-size: 13px; margin-bottom: 5px; margin-left: 25px; position: relative; top: -2px;}
 
 .map-download-hd { border-top-left-radius: 3px; border-top-right-radius: 3px; font-size: 12px; font-weight: bold; padding: 5px 0 5px 5px; }
 .map-download-hd .btn { background-color: transparent; font-size: 10px; }
@@ -89,7 +89,7 @@ footer .bull { font-size: 16px; margin: 0 10px; }
 .download-menu { position: absolute; top: 80px; left: 10px; background-color: rgba(255, 255, 255, 0.9); border: solid 1px #888888; border-radius: 3px; padding: 5px; display: none; cursor: pointer; width: 260px; z-index: 1001 }
 .download-menu .btn { font-size: 10px;}
 
-.map-toolTip { background-color: #FFF; border: 1px solid #999999; border-radius: 2px; display: none; padding: 10px; position: absolute; right:10px; top: 10px; width: 270px; z-index: 999; }
+.map-toolTip { background-color: #FFF; font-size: 13px; border: 1px solid #999999; border-radius: 5px; display: none; padding: 10px; position: absolute; right:5px; top: 5px; width: 320px; z-index: 999; }
 
 .btn-group { display: table-cell; }
 .btn-search { border-bottom-left-radius: 0; border-top-left-radius: 0; margin: 0 0px 0 -1px; }
