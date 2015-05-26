@@ -25,7 +25,9 @@ body { color: #333; font-family: Arial, Helvetica, sans-serif;}
 main { margin-top: 20px; }
 h1 {  }
 h2 {  }
-a, a:hover, a:focus { text-decoration: none; }    
+a, a:hover, a:focus { text-decoration: none; }
+
+#mapdata-display table {padding: 5px;}
     
 /* =============================================================================
    Header

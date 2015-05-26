@@ -44,6 +44,65 @@ var shownPolyCounty;
     fillOpacity: 0.0
       };
 
+var state_name = {
+"AL": "Alabama",
+"AK": "Alaska",
+"AZ": "Arizona",
+"AR": "Arkansas",
+"CA": "California",
+"CO": "Colorado",
+"CT": "Connecticut",
+"DE": "Delaware",
+"DC": "District of Columbia",
+"FL": "Florida",
+"GA": "Georgia",
+"HI": "Hawaii",
+"ID": "Idaho",
+"IL": "Illinois",
+"IN": "Indiana",
+"IA": "Iowa",
+"KS": "Kansas",
+"KY": "Kentucky",
+"LA": "Louisiana",
+"ME": "Maine",
+"MD": "Maryland",
+"MA": "Massachusetts",
+"MI": "Michigan",
+"MN": "Minnesota",
+"MS": "Mississippi",
+"MO": "Missouri",
+"MT": "Montana",
+"NE": "Nebraska",
+"NV": "Nevada",
+"NH": "New Hampshire",
+"NJ": "New Jersey",
+"NM": "New Mexico",
+"NY": "New York",
+"NC": "North Carolina",
+"ND": "North Dakota",
+"OH": "Ohio",
+"OK": "Oklahoma",
+"OR": "Oregon",
+"PA": "Pennsylvania",
+"RI": "Rhode Island",
+"SC": "South Carolina",
+"SD": "South Dakota",
+"TN": "Tennessee",
+"TX": "Texas",
+"UT": "Utah",
+"VT": "Vermont",
+"VA": "Virginia",
+"WA": "Washington",
+"WV": "West Virginia",
+"WI": "Wisconsin",
+"WY": "Wyoming",
+"AS": "American Samoa",
+"GU": "Guam",
+"MP": "North Mariana Islands",
+"PR": "Puerto Rico",
+"VI": "US Virgin Island"
+}
+	  
  function createMap() {
  
      L.mapbox.accessToken = 'pk.eyJ1IjoiY29tcHV0ZWNoIiwiYSI6InMyblMya3cifQ.P8yppesHki5qMyxTc2CNLg';
@@ -140,19 +199,23 @@ function mouseover(e) {
 var layer = e.target;
 var p = layer.feature.properties;
 var tooltipTxt = makeTooltipTxt(p);
-				
+	
+
 $("#tooltip_box_div").html(tooltipTxt);
 $("#tooltip_box_div").show();
+
 
 //set county border style
 layer.setStyle(countyStyleShown);
 
+showCountyAndStateSummary(p.fips, p.county, p.state)
 }
 
 function mouseout(e) {
 var layer = e.target;
 layer.setStyle(countyStyleHidden);
 $("#tooltip_box_div").hide();
+$("#mapdata-display").html('');
 }
 
 function makeTooltipTxt(p) {
@@ -164,6 +227,77 @@ tooltipTxt +=  "<tr><td>Price Cap County Supported Locations:</td><td align=righ
 tooltipTxt += "<tr><td>Price Cap County Support:</td><td align=right>" +  "$" + p.pc_support + "</td></tr></table>";
 
 return tooltipTxt;
+}
+
+function makeMapdataTxt(fips, county, state) {
+console.log(fips);
+if (typeof(county_mapdata[fips]) != "undefined") {
+var data = county_mapdata[fips];
+}
+else {
+data = [];
+}
+
+var county_text = "<b>" + county + ", " + state + " Summary</b><br>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=30%>PC Carrier</th><th width=20%>Offer State</th><th width=25%>Eligible Locations</th><th width=25%>Support Amount</th></tr>";
+for (var i = 0; i < data.length; i++) {
+var data1 = data[i];
+var dollar = data1[3];
+if (dollar != '') {
+dollar = "$" + dollar;
+}
+county_text += "<tr><td>" + data1[1] + "</td><td>" + data1[0] + "</td><td>" + data1[2] + "</td><td>" + dollar + "</td></tr>";
+}
+county_text += "</table>";
+
+
+//state
+var state_text = "<b>" + state_name[state] + " Summary</b><br>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=40%>PC Carrier</th><th width=30%>Eligible Locations</th><th width=30%>Support Amount</th></tr>";
+if (typeof(state_mapdata[state]) != "undefined") {
+var data = state_mapdata[state];
+}
+else {
+var data = []; 
+}
+
+for (var i = 0; i < data.length; i++) {
+var data1 = data[i];
+var loc = addComma(data1[1]);
+var sup = "$" + addComma(data1[2]);
+
+state_text += "<tr><td>" + data1[0] + "</td><td>" + loc + "</td><td>" + sup + "</td></tr>";
+}
+state_text += "</table>";
+
+return {"county": county_text, "state": state_text};
+}
+
+
+function addComma(n) {
+n = n.toString();
+str = "";
+for (var i=0; i < n.length; i++){
+	var place = n.length - i;
+	if (((place-1)%3) == 0 && place > 1) {
+		str += n[i] + ",";
+	}
+	else {
+		str += n[i]
+	}
+
+}
+
+return str;
+
+}
+
+function showCountyAndStateSummary(fips, county, state) {
+	var mapdataTxt = makeMapdataTxt(fips, county, state);
+	var countyMapdataTxt = mapdataTxt.county;
+	var stateMapdataTxt = mapdataTxt.state;
+	var mapdata_table = "<table><tr><td valign=top width=55%>" + countyMapdataTxt + "</td><td width=1%></td><td valign=top width=44%>" + stateMapdataTxt + "</td></tr></table>";
+	$("#mapdata-display").html(mapdata_table);	
+	$("#tooltip_box_div").html(tooltipTxt);
+	$("#tooltip_box_div").show();
 }
 
  function setListener() {
@@ -265,6 +399,8 @@ return tooltipTxt;
 		map.removeLayer(shownPolyCounty);
 	}
 	});
+	
+	showCountyAndStateSummary(p.fips, p.county, p.state)
 	
 	}	
 }
