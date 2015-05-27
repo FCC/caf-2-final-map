@@ -199,11 +199,9 @@ function mouseover(e) {
 var layer = e.target;
 var p = layer.feature.properties;
 var tooltipTxt = makeTooltipTxt(p);
-	
 
 $("#tooltip_box_div").html(tooltipTxt);
 $("#tooltip_box_div").show();
-
 
 //set county border style
 layer.setStyle(countyStyleShown);
@@ -238,20 +236,35 @@ else {
 data = [];
 }
 
-var county_text = "<b>" + county + ", " + state + " Summary</b><br>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=30%>PC Carrier</th><th width=20%>Offer State</th><th width=25%>Eligible Locations</th><th width=25%>Support Amount</th></tr>";
+var county_text = "<b>" + county + ", " + state + " Summary</b>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=30%>PC Carrier</th><th width=20%>Offer State</th><th width=25%>Eligible Locations</th><th width=25%>Support Amount</th></tr>";
+
+var loc_t = 0;
+var sup_t = 0;
 for (var i = 0; i < data.length; i++) {
 var data1 = data[i];
+
+if (data1[2] != "") {
+loc_t += parseInt(data1[2].replace(/,/, ""));
+}
+if (data1[3] != "") {
+sup_t += parseInt(data1[3].replace(/,/g, ""));
+}
+
 var dollar = data1[3];
 if (dollar != '') {
 dollar = "$" + dollar;
 }
 county_text += "<tr><td>" + data1[1] + "</td><td>" + data1[0] + "</td><td>" + data1[2] + "</td><td>" + dollar + "</td></tr>";
 }
+loc_t = addComma(loc_t);
+sup_t = "$" + addComma(sup_t);
+county_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
+county_text += "<tr><td>" + "Total" + "</td><td>" + "" + "</td><td>" + loc_t + "</td><td>" + sup_t + "</td></tr>";
 county_text += "</table>";
 
 
 //state
-var state_text = "<b>" + state_name[state] + " Summary</b><br>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=40%>PC Carrier</th><th width=30%>Eligible Locations</th><th width=30%>Support Amount</th></tr>";
+var state_text = "<b>" + state_name[state] + " Summary</b>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=30%>PC Carrier</th><th style=\"width: 20%; text-align: right\">Eligible Locations</th><th style=\"width: 50%; text-align: right\">Support Amount</th></tr>";
 if (typeof(state_mapdata[state]) != "undefined") {
 var data = state_mapdata[state];
 }
@@ -259,13 +272,26 @@ else {
 var data = []; 
 }
 
+var loc_t = 0;
+var sup_t = 0;
 for (var i = 0; i < data.length; i++) {
 var data1 = data[i];
 var loc = addComma(data1[1]);
 var sup = "$" + addComma(data1[2]);
 
-state_text += "<tr><td>" + data1[0] + "</td><td>" + loc + "</td><td>" + sup + "</td></tr>";
+if (data1[1] != "") {
+loc_t += parseInt(data1[1]);
 }
+if (data1[2] != "") {
+sup_t += parseInt(data1[2]);
+}
+
+state_text += "<tr><td>" + data1[0] + "</td><td align=right>" + loc + "</td><td align=right>" + sup + "</td></tr>";
+}
+loc_t = addComma(loc_t);
+sup_t = "$" + addComma(sup_t);
+state_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=3></td></tr>";
+state_text += "<tr><td>" + "Total" + "</td><td align=right>" + loc_t + "</td><td align=right>" + sup_t + "</td></tr>";
 state_text += "</table>";
 
 return {"county": county_text, "state": state_text};
@@ -294,10 +320,9 @@ function showCountyAndStateSummary(fips, county, state) {
 	var mapdataTxt = makeMapdataTxt(fips, county, state);
 	var countyMapdataTxt = mapdataTxt.county;
 	var stateMapdataTxt = mapdataTxt.state;
-	var mapdata_table = "<table><tr><td valign=top width=55%>" + countyMapdataTxt + "</td><td width=1%></td><td valign=top width=44%>" + stateMapdataTxt + "</td></tr></table>";
-	$("#mapdata-display").html(mapdata_table);	
-	$("#tooltip_box_div").html(tooltipTxt);
-	$("#tooltip_box_div").show();
+	var mapdata_table = countyMapdataTxt + "<br>" + stateMapdataTxt;
+	$("#mapdata-display").html(mapdata_table);
+console.log(mapdata_table);
 }
 
  function setListener() {
