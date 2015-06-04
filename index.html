@@ -65,6 +65,12 @@
                         </div>
                     </div>
                 </div>
+				
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8">
                 <div class="map-container">
                     <div id="map">
 						<!--
@@ -72,11 +78,12 @@
                             <span class="glyphicon glyphicon-download"></span>
                             <span class="sr-only">Download Data"</span>
                         </button> 
-						-->
+						
 						<button id="legend-btn-small" class="btn-mapCtrl btn-legend btn btn-default" data-original-title="Map&nbsp;Legend" title="Map Legend" style="display: inline-block;" data-toggle="tooltip" data-placement="right" >
 							<span class="icon-legends-2"></span>
 							<span class="sr-only">Legend</span>
-						</button>                        
+						</button> 
+							-->
                     </div>
                     <div id="tooltip_box_div" class="map-toolTip" style="z-index: 0">
                         <div id="feature_display_div" class="tooltipTxt"></div>
@@ -108,53 +115,60 @@
 						</div>			
 					</div>
 					-->
-					<div class="map-legend" style="">
-						<div class="legend" style="display: none;">
-							<div class="map-legend-hd">
-								<span class="icon-legends-2"></span> <span class="map-legend-name">Map Legend</span>
-								<button class="btn-closeLegend btn btn-xs pull-right">
-									<span class="glyphicon glyphicon-remove"></span> <span class="sr-only">Hide legend</span>
-								</button>
-							</div>
-							<dl class="dl-legend" style=" margin: 1px; padding: 3px;">
-								<dt style="vertical-align: center">
-									<div style="width: 16px; height: 16px; background-color: #d7191c; opacity: 0.6"></div>
-								</dt>
-								<dd>Eligible</dd>
-								<dt>
-									<div style="width: 16px; height: 16px; background-color: #6CB169; opacity: 0.6" ></div>
-								</dt>
-								<dd>Ineligible - Exceeds Benchmark</dd>
-								<dt>
-									<div style="width: 16px; height: 16px; background-color: #002966; opacity: 0.6"></div>
-								</dt>
-								<dd>Ineligible - Below Benchmark</dd>
-								<dt>
-									<div style="width: 16px; height: 16px; background-color: #A6CEE3; opacity: 0.6"></div>
-								</dt>
-								<dd>Other Ineligible</dd>
-								<dt>
-									<div style="width: 16px; height: 16px; background-color: #32005D; opacity: 0.6"></div>
-								</dt>
-								<dd>Elected Frozen</dd>
-							</dl>
-						</div>						
-					</div>
+
 					
 					<div id="tooltip_box_div" class="map-toolTip" style="z-index: 0">
                         <div id="feature_display_div" class="tooltipTxt"></div>				
                     </div>
                 </div>
-				<div id="mapdata-display" style="width: 80%>
-				
+					<section id="include-about">
+					</section>
+					<br />
+			</div>
+			
+			<div class="col-md-4">
+				<div id="mapdata-display" style="height: 390px; overflow: auto; padding: 5x; font-size: 12px; border: solid 0px #000">
+				Summary
 				</div>
-                <section id="include-about">
-                </section>
-                <br />
-            </div>
+				<div class="map-legend" style="">
+					<div class="legend" style="display: none;">
+						<div class="map-legend-hd">
+							<span class="icon-legends-2"></span> <span class="map-legend-name">Map Legend</span>
+							<!--
+							<button class="btn-closeLegend btn btn-xs pull-right">
+								<span class="glyphicon glyphicon-remove"></span> <span class="sr-only">Hide legend</span>
+							</button>
+							-->
+						</div>
+						<dl class="dl-legend" style=" margin: 1px; padding: 3px;">
+								<dt style="vertical-align: center">
+									<div style="width: 16px; height: 16px; background-color: #00c718; opacity: 0.6"></div>
+								</dt>
+								<dd>Eligible</dd>
+								<dt>
+									<div style="width: 16px; height: 16px; background-color: #00102e; opacity: 0.6" ></div>
+								</dt>
+								<dd>Ineligible - Exceeds Benchmark</dd>
+								<dt>
+									<div style="width: 16px; height: 16px; background-color: #305292; opacity: 0.6"></div>
+								</dt>
+								<dd>Ineligible - Below Benchmark</dd>
+								<dt>
+									<div style="width: 16px; height: 16px; background-color: #9fb8e5; opacity: 0.6"></div>
+								</dt>
+								<dd>Other Ineligible</dd>
+								<dt>
+									<div style="width: 16px; height: 16px; background-color: #403a99; opacity: 0.6"></div>
+								</dt>
+								<dd>Elected Frozen</dd>
+						</dl>
+					</div>						
+				</div>
+
+			</div>
+			
         </div>
-		
-		<div id=display></div>
+			
     </main>
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
@@ -166,9 +180,12 @@
     <script src="//api.tiles.mapbox.com/mapbox.js/v2.1.4/mapbox.js"></script>
     <script src="//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js"></script>
     <script src="js/app.js"></script>
-	<script src="js/all_counties_0.001.js"></script>
 	<script src="js/county_mapdata.js"></script>
 	<script src="js/state_mapdata.js"></script>
+	<script src="js/nation_mapdata.js"></script>
+	
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<script src="http://code.highcharts.com/modules/exporting.js"></script>
     <script>
     $(function() {
         //$("#include-about").load("about.html");

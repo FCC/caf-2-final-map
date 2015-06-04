@@ -19,8 +19,9 @@
   .container { max-width: 900px; }
 }   
 */
+
 .container { width: 930px; }
-      
+
 body { color: #333; font-family: Arial, Helvetica, sans-serif;}
 main { margin-top: 20px; }
 h1 {  }
@@ -28,7 +29,10 @@ h2 {  }
 a, a:hover, a:focus { text-decoration: none; }
 
 #mapdata-display table {padding: 5px;}
-    
+
+#mapdata-display table td {vertical-align: bottom; text-align: right; padding-left: 3px; padding-right: 3px;}
+#mapdata-display table th {vertical-align: bottom; text-align: right; padding-left: 3px;padding-right: 3px; } 
+  
 /* =============================================================================
    Header
    ========================================================================== */
@@ -72,13 +76,14 @@ footer .bull { font-size: 16px; margin: 0 10px; }
 .leaflet-container a, .leaflet-container a:focus, .leaflet-container a:hover { color: #456DA5; }
 .map-container { position: relative; }
 
-.map-legend { bottom: 15px; left: 10px; position: absolute; z-index: 1001; width: 400px; }
+/*.map-legend { bottom: 15px; left: 10px; position: absolute; z-index: 1001; width: 400px; } */
+.map-legend { z-index: 1001; width: 400px; margin-left: 18px}
 .map-legend-hd { border-top-left-radius: 3px; border-top-right-radius: 3px; font-size: 12px; font-weight: bold; padding: 5px 0 5px 5px; }
 .map-legend-hd .btn { background-color: transparent; font-size: 10px; }
 .map-legend-hd .icon-legends-2 { background-color: transparent; font-size: 10px; }
 .map-legend-hd .map-legend-name { font-size: 13px; font-weight: bold; }
 .map-legend-desc { font-size: 13px; font-style: italic; text-align: center; width: 100%; }
-.legend { background-color: rgba(255, 255, 255, 0.9); border: 1px solid #888888; border-radius: 3px; bottom: -5px; color: #333; width: 250px; }
+.legend { background-color: rgba(255, 255, 255, 0.9); border: 1px solid #aaaaaa; border-radius: 3px; bottom: -5px; color: #333; width: 250px; height: 160px; }
 .dl-legend { margin: 10px; margin-bottom: 5px; }
 .dl-legend dt { float: left; margin-bottom: 5px; font-size: 13px; text-align: left; width: 20px; }
 .dl-legend dd { color: #000; font-size: 13px; margin-bottom: 5px; margin-left: 25px; position: relative; top: -2px;}

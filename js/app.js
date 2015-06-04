@@ -21,6 +21,7 @@ var geo_output = 'application/json'
 var nn = 0;
 var map;
 var shownPolyCounty;
+var clickedCounty;
 
  var countyStyleHidden = {
           weight: 0,
@@ -108,9 +109,9 @@ var state_name = {
      L.mapbox.accessToken = 'pk.eyJ1IjoiY29tcHV0ZWNoIiwiYSI6InMyblMya3cifQ.P8yppesHki5qMyxTc2CNLg';
      map = L.mapbox.map('map', 'fcc.k74ed5ge', {
              attributionControl: true,
-             maxZoom: 19
+             maxZoom: 13
          })
-         .setView([40, -97], 3);
+         .setView([45, -110], 3);
 
      map.attributionControl.addAttribution('<a href="http://fcc.gov/maps">FCC Maps</a>');
 
@@ -152,6 +153,11 @@ var state_name = {
          transparent: true,
          layers: geo_space +':caftwo_caf_counties_merge'
     });
+	var wms_state_2010 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+         format: 'image/png',
+         transparent: true,
+         layers: geo_space +':state_2010'
+    });
 
      L.control.scale({
          position: 'bottomright'
@@ -169,12 +175,69 @@ var state_name = {
 		'Ineligible - Below Benchmark': wms_nonfrozen_class_2.addTo(map),
 		'Other Ineligible': wms_nonfrozen_class_3.addTo(map),
 		'Elected Frozen': wms_frozen.addTo(map),
-		'Counties': wms_counties_merge
+		'Counties': wms_counties_merge,
+		'States': wms_state_2010.addTo(map)
      }, {
          position: 'topleft'
      }).addTo(map);
+	 
+	 //show legend by default
+	$('.legend').show('fast');
+	
+	map.on("zoomend", function(e) {
+	
+	console.log("zoom " + map.getZoom());
+	if (map.getZoom() >= 7) {
+		if (!map.hasLayer(wms_counties_merge)) {
+			map.addLayer(wms_counties_merge);
+		}
+	}
+	else {
+		//remove county layer
+		if (map.hasLayer(wms_counties_merge)) {
+			map.removeLayer(wms_counties_merge);
+		}
+		//remove clicked county geom
+		if (map.hasLayer(clickedCounty)) {
+			map.removeLayer(clickedCounty);
+		}
+		showNationMapData();
+	}
+	
+	});
+	
+	map.on("click", function(e) {
+	mapClickAction(e);
+	});
  }
- 
+
+function mapClickAction(e) {
+	var lat = e.latlng.lat;
+	var lng = e.latlng.lng;
+	var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=geo_swat:caftwo_caf_counties_merge&maxFeatures=1&outputFormat=text/javascript&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))";
+console.log(url);
+
+	$.ajax({
+		type: "GET",
+		url: url,
+		dataType: "jsonp",
+		jsonpCallback: "parseResponse",
+		success: function(data) {
+			displayMapData(data);
+		}
+	});
+}
+
+function displayMapData(data) {
+	if (map.hasLayer(clickedCounty)) {
+		map.removeLayer(clickedCounty);
+	}
+	clickedCounty = L.mapbox.featureLayer(data).setStyle(countyStyleShown).addTo(map);
+	p = data.features[0].properties;
+	showCountyAndStateSummary(p.fips, p.county, p.state, p.total_pc)
+}
+
+
 function parseResponse(data) {
 
 }
@@ -183,7 +246,7 @@ function applyCountyLayer() {
 
 countyLayer = L.geoJson(all_counties,  {
       style: countyStyleHidden,
-      onEachFeature: onEachFeature
+      //onEachFeature: onEachFeature
   }).addTo(map);
 }
 
@@ -218,7 +281,7 @@ $("#mapdata-display").html('');
 
 function makeTooltipTxt(p) {
 var tooltipTxt = "<table width=100%>";
-tooltipTxt += "<tr><td cellspan=2 align=center><b>" + p.county + ", " + p.state + "</b></td></tr>";
+tooltipTxt += "<tr><td cellspan=2 align=center><span style=\"font-size: 13px; font-weight: bold\">" + p.county + ", " + p.state + "</span></td></tr>";
 
 tooltipTxt += "<tr><td>Total Price Cap County Locations:</td><td align=right>" +  p.total_pc + "</td></tr>";
 tooltipTxt +=  "<tr><td>Price Cap County Supported Locations:</td><td align=right>" + p.supported + "</td></tr>";
@@ -227,8 +290,7 @@ tooltipTxt += "<tr><td>Price Cap County Support:</td><td align=right>" +  "$" + 
 return tooltipTxt;
 }
 
-function makeMapdataTxt(fips, county, state) {
-console.log(fips);
+function makeMapdataTxt(fips, county, state, total_pc) {
 if (typeof(county_mapdata[fips]) != "undefined") {
 var data = county_mapdata[fips];
 }
@@ -236,8 +298,8 @@ else {
 data = [];
 }
 
-var county_text = "<b>" + county + ", " + state + " Summary</b>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=30%>PC Carrier</th><th width=20%>Offer State</th><th width=25%>Eligible Locations</th><th width=25%>Support Amount</th></tr>";
-
+var county_text = "&nbsp;<span style=\"font-size: 17px; font-weight: bold\">" + county + ", " + state + " Summary</span><br>&nbsp;Total Price Cap (PC) County Locations: " + total_pc + "<table style=\"width: 100%; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\">PC Carrier</th><th width=18% style=\"text-align: center; vertical-align: bottom\">State</th><th width=23% align=center>Eligible Locations</th><th width=29%>Support Amount</th></tr>";
+county_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
 var loc_t = 0;
 var sup_t = 0;
 for (var i = 0; i < data.length; i++) {
@@ -254,17 +316,18 @@ var dollar = data1[3];
 if (dollar != '') {
 dollar = "$" + dollar;
 }
-county_text += "<tr><td>" + data1[1] + "</td><td>" + data1[0] + "</td><td>" + data1[2] + "</td><td>" + dollar + "</td></tr>";
+county_text += "<tr><td style=\"text-align: left; vertical-align: bottom\">" + data1[1] + "</td><td style=\"text-align: center; vertical-align: bottom\" >" + data1[0] + "</td><td>" + data1[2] + "</td><td>" + dollar + "</td></tr>";
 }
 loc_t = addComma(loc_t);
 sup_t = "$" + addComma(sup_t);
 county_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
-county_text += "<tr><td>" + "Total" + "</td><td>" + "" + "</td><td>" + loc_t + "</td><td>" + sup_t + "</td></tr>";
+county_text += "<tr><td style=\"text-align: left; vertical-align: bottom\">" + "<b>Total</b>" + "</td><td>" + "" + "</td><td><b>" + loc_t + "</b></td><td><b>" + sup_t + "</b></td></tr>";
 county_text += "</table>";
 
 
 //state
-var state_text = "<b>" + state_name[state] + " Summary</b>" + "<table style=\"width: 100%; padding: 15px; border: solid 1px #cccccc\"><tr><th width=30%>PC Carrier</th><th style=\"width: 20%; text-align: right\">Eligible Locations</th><th style=\"width: 50%; text-align: right\">Support Amount</th></tr>";
+var state_text = "&nbsp;<span style=\"font-size: 17px; font-weight: bold\">" + state_name[state] + " Summary</span>" + "<table style=\"width: 100%; margin-bottom: 5px; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\" >PC Carrier</th><th width=18%></th><th style=\"width: 23%\">Eligible Locations</th><th style=\"width: 29%\">Support Amount</th></tr>";
+state_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
 if (typeof(state_mapdata[state]) != "undefined") {
 var data = state_mapdata[state];
 }
@@ -286,15 +349,47 @@ if (data1[2] != "") {
 sup_t += parseInt(data1[2]);
 }
 
-state_text += "<tr><td>" + data1[0] + "</td><td align=right>" + loc + "</td><td align=right>" + sup + "</td></tr>";
+state_text += "<tr><td style=\"text-align: left\">" + data1[0] + "</td><td></td><td>" + loc + "</td><td>" + sup + "</td></tr>";
 }
 loc_t = addComma(loc_t);
 sup_t = "$" + addComma(sup_t);
-state_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=3></td></tr>";
-state_text += "<tr><td>" + "Total" + "</td><td align=right>" + loc_t + "</td><td align=right>" + sup_t + "</td></tr>";
+state_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
+state_text += "<tr><td style=\"text-align: left\"><b>" + "Total" + "</b></td><td></td><td><b>" + loc_t + "</b></td><td><b>" + sup_t + "</b></td></tr>";
 state_text += "</table>";
 
-return {"county": county_text, "state": state_text};
+//nation
+var nation_text = "<p style=\"text-align: center\"><span style=\"font-size: 17px; font-weight: bold\">Nationwide Summary</span></p>" + "<table style=\"width: 100%; margin-bottom: 5px; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\">PC Carrier</th><th width=5%></th><th style=\"width: 30%\">Eligible Locations</th><th width=5%></th><th style=\"width: 30%\">Support Amount</th></tr>";
+nation_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=5></td></tr>";
+if (typeof(nation_mapdata["nation"]) != "undefined") {
+var data = nation_mapdata["nation"];
+}
+else {
+var data = []; 
+}
+
+var loc_t = 0;
+var sup_t = 0;
+for (var i = 0; i < data.length; i++) {
+var data1 = data[i];
+var loc = addComma(data1[1]);
+var sup = "$" + addComma(data1[2]);
+
+if (data1[1] != "") {
+loc_t += parseInt(data1[1]);
+}
+if (data1[2] != "") {
+sup_t += parseInt(data1[2]);
+}
+
+nation_text += "<tr><td style=\"text-align: left\">" + data1[0] + "</td><td></td><td>" + loc + "</td><td></td><td>" + sup + "</td></tr>";
+}
+loc_t = addComma(loc_t);
+sup_t = "$" + addComma(sup_t);
+nation_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=5></td></tr>";
+nation_text += "<tr><td style=\"text-align: left\"><b>" + "Total" + "</b></td><td></td><td><b>" + loc_t + "</b></td><td></td><td><b>" + sup_t + "</b></td></tr>";
+nation_text += "</table>";
+
+return {"county": county_text, "state": state_text, "nation": nation_text};
 }
 
 
@@ -316,13 +411,24 @@ return str;
 
 }
 
-function showCountyAndStateSummary(fips, county, state) {
-	var mapdataTxt = makeMapdataTxt(fips, county, state);
+function showCountyAndStateSummary(fips, county, state, total_pc) {
+	var mapdataTxt = makeMapdataTxt(fips, county, state, total_pc);
 	var countyMapdataTxt = mapdataTxt.county;
 	var stateMapdataTxt = mapdataTxt.state;
+	var nationMapdataTxt = mapdataTxt.nation;
 	var mapdata_table = countyMapdataTxt + "<br>" + stateMapdataTxt;
 	$("#mapdata-display").html(mapdata_table);
-console.log(mapdata_table);
+
+}
+
+function showNationMapData() {
+	var mapdataTxt = makeMapdataTxt("", "", "");
+	var countyMapdataTxt = mapdataTxt.county;
+	var stateMapdataTxt = mapdataTxt.state;
+	var nationMapdataTxt = mapdataTxt.nation;
+	var mapdata_table = nationMapdataTxt;
+	$("#mapdata-display").html(mapdata_table);
+
 }
 
  function setListener() {
@@ -407,25 +513,19 @@ console.log(mapdata_table);
  
  function showSearchedCounty(data) {
  	if (data.totalFeatures > 0) {
-	if (map.hasLayer(shownPolyCounty)) {
-		map.removeLayer(shownPolyCounty);
+	if (map.hasLayer(clickedCounty)) {
+		map.removeLayer(clickedCounty);
 	}
-	shownPolyCounty = L.mapbox.featureLayer(data).setStyle(countyStyleSearched).addTo(map);
-	map.fitBounds(shownPolyCounty.getBounds());
+	clickedCounty = L.mapbox.featureLayer(data).setStyle(countyStyleSearched).addTo(map);
+	map.fitBounds(clickedCounty.getBounds());
 		
 	var p = data.features[0].properties;
 
 	var tooltipTxt = makeTooltipTxt(p);		
 	$("#tooltip_box_div").html(tooltipTxt);
 	$("#tooltip_box_div").show();
-			
-	shownPolyCounty.on("mouseover", function(e) {
-	if (map.hasLayer(shownPolyCounty)) {
-		map.removeLayer(shownPolyCounty);
-	}
-	});
 	
-	showCountyAndStateSummary(p.fips, p.county, p.state)
+	showCountyAndStateSummary(p.fips, p.county, p.state, p.total_pc)
 	
 	}	
 }
@@ -437,11 +537,75 @@ console.log(mapdata_table);
  function hideMapLegendBox() {
      $("#map-legend-box").hide()
  }
+ 
+ function plotChart() {
+     // Radialize the colors
+    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+            stops: [
+                [0, color],
+                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    });
+
+    // Build the chart
+    $('#chart').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: 'Browser market shares at a specific website, 2014'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    },
+                    connectorColor: 'silver'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Browser share',
+            data: [
+                ['Firefox',   45.0],
+                ['IE',       26.8],
+                {
+                    name: 'Chrome',
+                    y: 12.8,
+                    sliced: true,
+                    selected: true
+                },
+                ['Safari',    8.5],
+                ['Opera',     6.2],
+                ['Others',   0.7]
+            ]
+        }]
+    });
+
+
+ }
+ 
 
  $(document).ready(function() {
      createMap();
      setListener();
-	 applyCountyLayer();
+	 //applyCountyLayer();
+	 
+	 showNationMapData()
 
      $('.btn-legend').click(function(){ 
         $(this).hide();
