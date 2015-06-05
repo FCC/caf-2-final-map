@@ -171,7 +171,7 @@ var state_name = {
          'Terrain': baseTerrain
      }, {
 		'Eligible': wms_nonfrozen_class_4.addTo(map),
-		'Ineligible - Exceeds Benchmark': wms_nonfrozen_class_1.addTo(map),
+		'Ineligible - Exceeds Threshold': wms_nonfrozen_class_1.addTo(map),
 		'Ineligible - Below Benchmark': wms_nonfrozen_class_2.addTo(map),
 		'Other Ineligible': wms_nonfrozen_class_3.addTo(map),
 		'Elected Frozen': wms_frozen.addTo(map),
