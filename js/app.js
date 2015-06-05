@@ -521,9 +521,9 @@ function showNationMapData() {
 		
 	var p = data.features[0].properties;
 
-	var tooltipTxt = makeTooltipTxt(p);		
-	$("#tooltip_box_div").html(tooltipTxt);
-	$("#tooltip_box_div").show();
+	//var tooltipTxt = makeTooltipTxt(p);		
+	//$("#tooltip_box_div").html(tooltipTxt);
+	//$("#tooltip_box_div").show();
 	
 	showCountyAndStateSummary(p.fips, p.county, p.state, p.total_pc)
 	
