@@ -18,6 +18,11 @@ var geo_host = 'http://ltsttm-geo02a:8080';
 var geo_space = 'geo_swat';
 var geo_output = 'application/json'
 
+var geo_host = 'http://kolyma:8010';
+var geo_host = '//www.broadbandmap.gov';
+var geo_space = 'gis_swat';
+var geo_output = 'application/json'
+
 var nn = 0;
 var map;
 var shownPolyCounty;
