@@ -181,7 +181,9 @@ var state_name = {
          position: 'topleft'
      }).addTo(map);
 	 
-	 
+	 //show legend by default
+	$('.legend').show('fast');
+	
 	map.on("zoomend dragend", function(e) {
 	
 	if (map.getZoom() >= 7) {
@@ -200,6 +202,9 @@ var state_name = {
 		}
 		showNationMapData();
 	}
+	
+	//will implement pixel color reading when cross-domain issue resolves
+	//refreshCanvas();
 	
 	});
 	
@@ -238,7 +243,42 @@ function parseResponse(data) {
 
 }
 
+function applyCountyLayer() {
 
+countyLayer = L.geoJson(all_counties,  {
+      style: countyStyleHidden,
+      //onEachFeature: onEachFeature
+  }).addTo(map);
+}
+
+function onEachFeature(feature, layer) {
+      layer.on({
+		mouseover: mouseover,
+        mouseout: mouseout
+      });
+  }
+
+function mouseover(e) {
+
+var layer = e.target;
+var p = layer.feature.properties;
+var tooltipTxt = makeTooltipTxt(p);
+
+$("#tooltip_box_div").html(tooltipTxt);
+$("#tooltip_box_div").show();
+
+//set county border style
+layer.setStyle(countyStyleShown);
+
+showCountyAndStateSummary(p.fips, p.county, p.state)
+}
+
+function mouseout(e) {
+var layer = e.target;
+layer.setStyle(countyStyleHidden);
+$("#tooltip_box_div").hide();
+$("#mapdata-display").html('');
+}
 
 function makeTooltipTxt(p) {
 var tooltipTxt = "<table width=100%>";
@@ -483,8 +523,13 @@ function showNationMapData() {
 	map.fitBounds(clickedCounty.getBounds());
 		
 	var p = data.features[0].properties;
+
+	//var tooltipTxt = makeTooltipTxt(p);		
+	//$("#tooltip_box_div").html(tooltipTxt);
+	//$("#tooltip_box_div").show();
 	
 	showCountyAndStateSummary(p.fips, p.county, p.state, p.total_pc)
+	
 	}	
 }
 
@@ -496,11 +541,160 @@ function showNationMapData() {
      $("#map-legend-box").hide()
  }
  
+ 
+ 
+ //========= TILE CALCULATIONS
+var tileSize = 256;
+var initialResolution = 2 * Math.PI * 6378137 / tileSize;
+var originShift = 2 * Math.PI * 6378137 / 2.0;
+var zoomNow = 1;
+var img = [];
+var num, nx, ny;
 
+ 
+ function refreshCanvas() {
+ 
+ var zoomNow = map.getZoom();
+ var b = map.getBounds();
+ var south = b.getSouth();
+ var north = b.getNorth();
+ var west = b.getWest();
+ var east = b.getEast();
+
+ var txy1 = LatLonToTile(south, west, zoomNow);
+ var tx1 = txy1[0];
+ var ty1 = txy1[1];
+ var txy2 = LatLonToTile(north, east, zoomNow);
+ var tx2 = txy2[0];
+ var ty2 = txy2[1];
+ nx = tx2 - tx1 + 1;
+ ny = ty2 - ty1 + 1;
+ num = nx * ny;
+ 
+
+ c = document.getElementById("canvas");
+ ctx = c.getContext("2d");
+ c1 = document.getElementById("canvas1");
+ ctx1 = c.getContext("2d");
+
+
+ var tileBounds = [];
+ img = [];
+ url = [];
+ var n = 0;
+ for (var tx = tx1; tx <= tx2; tx++) {
+	for (var ty = ty1; ty <= ty2; ty++) {
+
+		var bounds = TileBounds(tx, ty, zoomNow);
+		var bbox = bounds[0] + "," + bounds[1] + "," + bounds[2] + "," + bounds[3];
+		var xstart = (tx-tx1) * tileSize;
+		var ystart = (ty2-ty) * tileSize;
+		url[n] = "http://ltsttm-geo02a:8080/geoserver/gwc/service/wms?tiled=true&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=geo_swat%3Acaftwo_nonfrozen_class_4&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=false&HEIGHT=256&WIDTH=256&SRS=EPSG%3A3857&BBOX=" + bbox;
+
+		img[n] = new Image();
+
+	img[n].src = url[n];
+	n++;
+ }
+ }
+ 
+setTimeout(function() { renderAllImg(); }, 500);
+ 
+ }
+ 
+ function renderAllImg() {
+
+
+var allLoaded = true;
+for (var i =0; i < num; i++) {
+	if (!img[i].complete) {
+		allLoaded = false
+	}
+}
+
+if (allLoaded) {
+ ctx.clearRect(0, 0, tileSize*nx, tileSize*ny);
+for (var n = 0; n < num; n++) {
+ var y = n % ny;
+ var x = Math.floor(n/ny)
+ var xstart = x * tileSize;
+ var ystart = (ny-y-1) * tileSize;
+ ctx.drawImage(img[n],xstart, ystart, 256, 256);
+}
+
+
+}
+else {
+setTimeout(function() { renderAllImg(); }, 500);
+}
+ 
+}
+ 
+ 
+function LatLonToMeters(lat, lon) {
+	var mx = lon * originShift / 180.0;
+	var my = Math.log( Math.tan((90 + lat) * Math.PI / 360.0 )) / (Math.PI / 180.0);
+	my = my * originShift / 180.0;
+	return [mx, my];
+	}
+ 
+function MetersToPixels(mx, my, zoom) {         
+	res = Resolution(zoom);
+	px = Math.round((mx + originShift) / res);
+	py = Math.round((my + originShift) / res);
+	return [px, py];
+	}
+	
+function Resolution(zoom ) {
+	return initialResolution / Math.pow(2, zoom);
+}
+
+function PixelsToTile(px, py) {
+	var tx =  Math.ceil( px / tileSize ) - 1;
+	var ty =  Math.ceil( py / tileSize ) - 1;
+	return [tx, ty]
+	}
+ 
+function LatLonToTile(lat, lon, zoom) {
+	var xy = LatLonToMeters(lat, lon);
+	var mx = xy[0];
+	var my = xy[1];
+	var pxy = MetersToPixels(mx, my, zoom);
+	var px = pxy[0];
+	var py = pxy[1];
+	var tx =  Math.ceil( px / tileSize ) - 1;
+	var ty =  Math.ceil( py / tileSize ) - 1;
+	return [tx, ty]
+	}
+ 
+function TileBounds(tx, ty, zoom) {
+	var minxy = PixelsToMeters( tx*tileSize, ty*tileSize, zoom );
+	var minx = minxy[0];
+	var miny = minxy[1];
+	var maxxy = PixelsToMeters( (tx+1)*tileSize, (ty+1)*tileSize, zoom );
+	var maxx = maxxy[0];
+	var maxy = maxxy[1];
+	return [minx, miny, maxx, maxy]
+ }
+ 
+function PixelsToMeters(px, py, zoom) {
+	res = Resolution( zoom )
+	mx = px * res - originShift
+	my = py * res - originShift
+	return [mx, my]
+}
+ 
+ 
+ 
+ 
+ 
+ 
  $(document).ready(function() {
      createMap();
-     setListener();	 
-	 showNationMapData();
+     setListener();
+	 //applyCountyLayer();
+	 
+	 showNationMapData()
 
      $('.btn-legend').click(function(){ 
         $(this).hide();
