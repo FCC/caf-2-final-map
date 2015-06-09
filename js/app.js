@@ -184,7 +184,7 @@ var state_name = {
 	 //show legend by default
 	$('.legend').show('fast');
 	
-	map.on("zoomend", function(e) {
+	map.on("zoomend dragend", function(e) {
 	
 	console.log("zoom " + map.getZoom());
 	if (map.getZoom() >= 7) {
@@ -203,6 +203,9 @@ var state_name = {
 		}
 		showNationMapData();
 	}
+	
+	//will implement pixel color reading when cross-domain issue resolves
+	//refreshCanvas();
 	
 	});
 	
@@ -298,7 +301,9 @@ else {
 data = [];
 }
 
-var county_text = "&nbsp;<span style=\"font-size: 17px; font-weight: bold\">" + county + ", " + state + " Summary</span><br>&nbsp;Total Price Cap (PC) County Locations: " + total_pc + "<table style=\"width: 100%; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\">PC Carrier</th><th width=18% style=\"text-align: center; vertical-align: bottom\">State</th><th width=23% align=center>Eligible Locations</th><th width=29%>Support Amount</th></tr>";
+county = county.replace(' city', ' City');
+
+var county_text = "&nbsp;<span style=\"font-size: 17px; font-weight: bold\">County Summary</span><br><b>&nbsp;" + county + ", " + state + "</b><br>  &nbsp;Total Price Cap (PC) County Locations: " + total_pc + "<table style=\"width: 100%; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\">PC Carrier</th><th width=18% style=\"text-align: center; vertical-align: bottom\">State</th><th width=23% align=center>Eligible Locations</th><th width=29%>Support Amount</th></tr>";
 county_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
 var loc_t = 0;
 var sup_t = 0;
@@ -326,7 +331,7 @@ county_text += "</table>";
 
 
 //state
-var state_text = "&nbsp;<span style=\"font-size: 17px; font-weight: bold\">" + state_name[state] + " Summary</span>" + "<table style=\"width: 100%; margin-bottom: 5px; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\" >PC Carrier</th><th width=18%></th><th style=\"width: 23%\">Eligible Locations</th><th style=\"width: 29%\">Support Amount</th></tr>";
+var state_text = "&nbsp;<span style=\"font-size: 17px; font-weight: bold\">" + state_name[state] + " State Summary</span>" + "<table style=\"width: 100%; margin-bottom: 5px; padding: 15px; border: solid 0px #cccccc\"><tr><th style=\"width: 30%; text-align: left\" >PC Carrier</th><th width=18%></th><th style=\"width: 23%\">Eligible Locations</th><th style=\"width: 29%\">Support Amount</th></tr>";
 state_text += "<tr style=\"width: 100%; height: 1px; background-color: #ddd\"><td colspan=4></td></tr>";
 if (typeof(state_mapdata[state]) != "undefined") {
 var data = state_mapdata[state];
@@ -538,68 +543,189 @@ function showNationMapData() {
      $("#map-legend-box").hide()
  }
  
- function plotChart() {
-     // Radialize the colors
-    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-        return {
-            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-            stops: [
-                [0, color],
-                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-            ]
-        };
-    });
+ 
+ 
+ //========= TILE CALCALATIONS
+var tileSize = 256;
+var initialResolution = 2 * Math.PI * 6378137 / tileSize;
+var originShift = 2 * Math.PI * 6378137 / 2.0;
+var zoomNow = 1;
+var img = [];
+var num, nx, ny;
 
-    // Build the chart
-    $('#chart').highcharts({
-        chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false
-        },
-        title: {
-            text: 'Browser market shares at a specific website, 2014'
-        },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    style: {
-                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                    },
-                    connectorColor: 'silver'
-                }
-            }
-        },
-        series: [{
-            type: 'pie',
-            name: 'Browser share',
-            data: [
-                ['Firefox',   45.0],
-                ['IE',       26.8],
-                {
-                    name: 'Chrome',
-                    y: 12.8,
-                    sliced: true,
-                    selected: true
-                },
-                ['Safari',    8.5],
-                ['Opera',     6.2],
-                ['Others',   0.7]
-            ]
-        }]
-    });
+console.log('ini=' + initialResolution + ' ori=' + originShift + ' img=' + img);
+ 
+ 
+ function refreshCanvas() {
+ 
+ var zoomNow = map.getZoom();
+ var b = map.getBounds();
+ var south = b.getSouth();
+ var north = b.getNorth();
+ var west = b.getWest();
+ var east = b.getEast();
+
+ var txy1 = LatLonToTile(south, west, zoomNow);
+ var tx1 = txy1[0];
+ var ty1 = txy1[1];
+ var txy2 = LatLonToTile(north, east, zoomNow);
+ var tx2 = txy2[0];
+ var ty2 = txy2[1];
+ console.log("tx1=" + tx1 + " tx2=" + tx2 + " ty1=" + ty1 + " ty2=" + ty2);
+ nx = tx2 - tx1 + 1;
+ ny = ty2 - ty1 + 1;
+ num = nx * ny;
+ 
+ console.log("here num, nx ny=" + num + ' ' + nx + ' ' + ny);
+ 
+ //set canvas size
+ console.log('set canvas size');
+ var w = nx * tileSize;
+ var h = ny * tileSize;
+ var obj = document.getElementById("canvas").style;
+ //obj.width = w + "px";
+ //obj.height = h + "px";
+ c = document.getElementById("canvas");
+ ctx = c.getContext("2d");
+ c1 = document.getElementById("canvas1");
+ ctx1 = c.getContext("2d");
 
 
+ var tileBounds = [];
+ img = [];
+ url = [];
+ var n = 0;
+ for (var tx = tx1; tx <= tx2; tx++) {
+	for (var ty = ty1; ty <= ty2; ty++) {
+	console.log("tx=" + tx + " ty=" + ty);
+		var bounds = TileBounds(tx, ty, zoomNow);
+		var bbox = bounds[0] + "," + bounds[1] + "," + bounds[2] + "," + bounds[3];
+		var xstart = (tx-tx1) * tileSize;
+		var ystart = (ty2-ty) * tileSize;
+		url[n] = "http://ltsttm-geo02a:8080/geoserver/gwc/service/wms?tiled=true&SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1&LAYERS=geo_swat%3Acaftwo_nonfrozen_class_4&STYLES=&FORMAT=image%2Fpng&TRANSPARENT=false&HEIGHT=256&WIDTH=256&SRS=EPSG%3A3857&BBOX=" + bbox;
+		console.log("url=" + url[n]);
+		img[n] = new Image();
+
+	img[n].src = url[n];
+	n++;
+ }
  }
  
+setTimeout(function() { renderAllImg(); }, 500);
+ 
+ }
+ 
+ function renderAllImg() {
+ console.log("num imgs=" + num + ' nx ny=' + nx + ' ' + ny);
 
+var allLoaded = true;
+for (var i =0; i < num; i++) {
+	if (!img[i].complete) {
+		allLoaded = false
+	}
+}
+
+if (allLoaded) {
+ ctx.clearRect(0, 0, tileSize*nx, tileSize*ny);
+for (var n = 0; n < num; n++) {
+ var y = n % ny;
+ var x = Math.floor(n/ny)
+ var xstart = x * tileSize;
+ var ystart = (ny-y-1) * tileSize;
+ console.log("n=" + n + " xstart=" + xstart + " ystart=" + ystart + " img w=" + img[n].width + "url=" + url[n]);
+
+ ctx.drawImage(img[n],xstart, ystart, 256, 256);
+ console.log("drawImage " + img[n]);
+}
+
+console.log("get pix");
+//var p = ctx.getImageData(500, 500, 1, 1).data; 
+    //var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+	//console.log("hex=" + hex)
+
+}
+else {
+setTimeout(function() { renderAllImg(); }, 500);
+}
+ 
+}
+ 
+ 
+ 
+ function imgOnload(nn) {
+ var x = nn % nx;
+ var y = Math.floor(nn/nx)
+ var xstart = x * tileSize;
+ var ystart = (ny-y-1) * tileSize;
+ console.log("nn=" + nn + " xstart=" + xstart + " ystart=" + ystart + " url=" + url[n]);
+ //draw single img
+ ctx.drawImage(img[nn], xstart, ystart, tileSize, tileSize);
+ 
+ 
+ 
+ }
+
+
+
+ 
+function LatLonToMeters(lat, lon) {
+	var mx = lon * originShift / 180.0;
+	var my = Math.log( Math.tan((90 + lat) * Math.PI / 360.0 )) / (Math.PI / 180.0);
+	my = my * originShift / 180.0;
+	return [mx, my];
+	}
+ 
+function MetersToPixels(mx, my, zoom) {         
+	res = Resolution(zoom);
+	px = Math.round((mx + originShift) / res);
+	py = Math.round((my + originShift) / res);
+	return [px, py];
+	}
+	
+function Resolution(zoom ) {
+	return initialResolution / Math.pow(2, zoom);
+}
+
+function PixelsToTile(px, py) {
+	var tx =  Math.ceil( px / tileSize ) - 1;
+	var ty =  Math.ceil( py / tileSize ) - 1;
+	return [tx, ty]
+	}
+ 
+function LatLonToTile(lat, lon, zoom) {
+	var xy = LatLonToMeters(lat, lon);
+	var mx = xy[0];
+	var my = xy[1];
+	var pxy = MetersToPixels(mx, my, zoom);
+	var px = pxy[0];
+	var py = pxy[1];
+	var tx =  Math.ceil( px / tileSize ) - 1;
+	var ty =  Math.ceil( py / tileSize ) - 1;
+	return [tx, ty]
+	}
+ 
+function TileBounds(tx, ty, zoom) {
+	var minxy = PixelsToMeters( tx*tileSize, ty*tileSize, zoom );
+	var minx = minxy[0];
+	var miny = minxy[1];
+	var maxxy = PixelsToMeters( (tx+1)*tileSize, (ty+1)*tileSize, zoom );
+	var maxx = maxxy[0];
+	var maxy = maxxy[1];
+	return [minx, miny, maxx, maxy]
+ }
+ 
+function PixelsToMeters(px, py, zoom) {
+	res = Resolution( zoom )
+	mx = px * res - originShift
+	my = py * res - originShift
+	return [mx, my]
+}
+ 
+ 
+ 
+ 
+ 
+ 
  $(document).ready(function() {
      createMap();
      setListener();

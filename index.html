@@ -140,6 +140,46 @@
 							</button>
 							-->
 						</div>
+						<div>
+							<table id="legend-list">
+								<tr>
+								<td>
+									<div style="width: 16px; height: 16px; background-color: #00c718; opacity: 0.6"></div>
+								</td>
+								<td style="width: 25px"></td>
+								<td>Eligible</td>
+								</tr>
+								<tr>
+								<td>
+									<div style="width: 16px; height: 16px; background-color: #05070a; opacity: 0.6" ></div>
+								</td>
+								<td style="width: 25px"></td>
+								<td>Ineligible - Exceeds Threshold</td>
+								</tr>
+								<tr>
+								<td>
+									<div style="width: 16px; height: 16px; background-color: #002a7a; opacity: 0.6"></div>
+								</td>
+								<td style="width: 25px"></td>
+								<td>Ineligible - Below Benchmark</td>
+								</tr>
+								<tr>
+								<td>
+									<div style="width: 16px; height: 16px; background-color: #9cbffe; opacity: 0.6"></div>
+								</td>
+								<td style="width: 25px"></td>
+								<td>Ineligible - Other</td>
+								</tr>
+								<tr>
+								<td>
+									<div style="width: 16px; height: 16px; background-color: #5900ac; opacity: 0.6"></div>
+								</td>
+								<td style="width: 25px"></td>
+								<td>Elected Frozen</td>
+								</tr>
+							</table>
+						</div>
+						<!--
 						<dl class="dl-legend" style=" margin: 1px; padding: 3px;">
 								<dt style="vertical-align: center">
 									<div style="width: 16px; height: 16px; background-color: #00c718; opacity: 0.6"></div>
@@ -156,18 +196,20 @@
 								<dt>
 									<div style="width: 16px; height: 16px; background-color: #9fb8e5; opacity: 0.6"></div>
 								</dt>
-								<dd>Other Ineligible</dd>
+								<dd>Ineligible - Other</dd>
 								<dt>
 									<div style="width: 16px; height: 16px; background-color: #403a99; opacity: 0.6"></div>
 								</dt>
 								<dd>Elected Frozen</dd>
 						</dl>
+						-->
 					</div>						
 				</div>
 
 			</div>
 			
         </div>
+
 			
     </main>
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -184,13 +226,25 @@
 	<script src="js/state_mapdata.js"></script>
 	<script src="js/nation_mapdata.js"></script>
 	
-	<script src="http://code.highcharts.com/highcharts.js"></script>
-	<script src="http://code.highcharts.com/modules/exporting.js"></script>
     <script>
     $(function() {
         //$("#include-about").load("about.html");
     });
     </script>
+	
+	
+	<div style="position: absolute; top: 0px; left: 10000px; background-color: #000000">
+		<canvas id="canvas" width="1" height="1" style=" background-color: #ffffff">
+		</canvas>
+		<br>
+		<canvas id="canvas1" width="1" height="1" style=" background-color: #eeeeee">
+		</canvas>
+
+	</div>
+
+
+	
+	
 </body>
 
 </html>
