@@ -207,7 +207,6 @@ function mapClickAction(e) {
 	var lng = e.latlng.lng;
 	var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
 
-	mat_options=callback:parseResponse
 	$.ajax({
 		type: "GET",
 		url: url,
