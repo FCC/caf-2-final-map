@@ -471,6 +471,9 @@ console.log(url);
  
  //function showSearchedCounty(data) {
  function parseResponse(data) {
+ 
+ alert('okkkkkkkkkkkkk');
+ 
  	if (data.totalFeatures > 0) {
 	if (map.hasLayer(clickedCounty)) {
 		map.removeLayer(clickedCounty);
