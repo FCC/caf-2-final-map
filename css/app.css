@@ -12,18 +12,9 @@
    ========================================================================== */
 
 
-@media (min-width: 1200px) {
-  .container { max-width: 900px; }
-}
-@media (min-width: 900px) {
-  .container { max-width: 900px; }
-}   
-
-
-.container { width: 930px; }
 
 body { color: #333; font-family: Arial, Helvetica, sans-serif;}
-main { margin-top: 20px; }
+main { margin-top: 10px; padding: 0; margin: 0;} }
 h1 {  }
 h2 {  }
 a, a:hover, a:focus { text-decoration: none; }
@@ -77,7 +68,7 @@ footer .bull { font-size: 16px; margin: 0 10px; }
 .map-container { position: relative; }
 
 /*.map-legend { bottom: 15px; left: 10px; position: absolute; z-index: 1001; width: 400px; } */
-.map-legend { z-index: 1001; width: 400px; margin-left: }
+.map-legend { z-index: 1001; }
 .map-legend-hd { border-top-left-radius: 3px; border-top-right-radius: 3px; font-size: 12px; font-weight: bold; padding: 5px 0 5px 5px; }
 .map-legend-hd .btn { background-color: transparent; font-size: 10px; }
 .map-legend-hd .icon-legends-2 { background-color: transparent; font-size: 10px; }
@@ -117,7 +108,7 @@ footer .bull { font-size: 16px; margin: 0 10px; }
 #search-field .btn-geoLocation { border-top-left-radius: 4px; border-bottom-left-radius: 4px; padding: 7px 12px 5px;}
 .search-group { display: table-row; }
 .search-input, .btn-group-loc { display: table-cell; }
-.search-input { width: 100%; }
+.search-input { width: 815px; }
 .search-input .input-group { width: 98%; }
 #search-field .btn-nationLocation { border-bottom-right-radius: 4px; border-top-right-radius: 4px;}
 
