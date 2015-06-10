@@ -228,9 +228,9 @@ function displayMapData(data) {
 }
 
 
-//function parseResponse(data) {
+function parseResponse(data) {
 
-//}
+}
 
 
 
@@ -464,13 +464,12 @@ console.log(url);
 			dataType: "jsonp",
 			jsonpCallback: "parseResponse",
 			success: function(data) {
-				parseResponse(data);					
+				showSearchedCounty(data);					
 			}
 		});
  }
  
- //function showSearchedCounty(data) {
- function parseResponse(data) {
+ function showSearchedCounty(data) {
  
  alert('okkkkkkkkkkkkk');
  
