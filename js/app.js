@@ -472,7 +472,7 @@ console.log(url);
  
  function showSearchedCounty(data) {
  
- if (data.features[0]){
+ if (data.features[0].properties){
 	if (map.hasLayer(clickedCounty)) {
 		map.removeLayer(clickedCounty);
 	}
