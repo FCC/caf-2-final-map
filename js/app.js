@@ -228,9 +228,9 @@ function displayMapData(data) {
 }
 
 
-function parseResponse(data) {
+//function parseResponse(data) {
 
-}
+//}
 
 
 
@@ -469,7 +469,8 @@ console.log(url);
 		});
  }
  
- function showSearchedCounty(data) {
+ //function showSearchedCounty(data) {
+ function parseResponse(data) {
  	if (data.totalFeatures > 0) {
 	if (map.hasLayer(clickedCounty)) {
 		map.removeLayer(clickedCounty);
