@@ -402,7 +402,22 @@ function showNationMapData() {
                  var geo_lon = position.coords.longitude;
                  var geo_acc = position.coords.accuracy;
 
-                 map.setView([geo_lat, geo_lon], 12);
+                 //map.setView([geo_lat, geo_lon], 12);
+				 
+				var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + geo_lon + " " + geo_lat + "))&callback=parseResponse&format_options=callback:parseResponse";
+
+	$.ajax({
+			type: "GET",
+			url: url,
+			//dataType: "json",
+			dataType: "jsonp",
+			jsonpCallback: "parseResponse",
+			success: function(data) {
+
+				showSearchedCounty(data);					
+			}
+		});
+				 
 
              }, function(error) {
                  //alert('Error occurred. Error code: ' + error.code);    
