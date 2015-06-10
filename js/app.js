@@ -472,8 +472,7 @@ console.log(url);
  
  function showSearchedCounty(data) {
  
- 
- 	//if (data.totalFeatures > 0) {
+ if (data.features[0]){
 	if (map.hasLayer(clickedCounty)) {
 		map.removeLayer(clickedCounty);
 	}
@@ -482,8 +481,9 @@ console.log(url);
 		
 	var p = data.features[0].properties;
 	
-	showCountyAndStateSummary(p.fips, p.county, p.state, p.total_pc)
-	//}	
+	showCountyAndStateSummary(p.fips, p.county, p.state, p.total_pc);
+	}
+
 }
 
  function showMapLegendBox() {
