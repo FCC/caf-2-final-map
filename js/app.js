@@ -471,7 +471,7 @@ console.log(url);
  
  function showSearchedCounty(data) {
  
- alert('okkkkkkkkkkkkk');
+ alert('f=' + data.totalFeatures);
  
  	if (data.totalFeatures > 0) {
 	if (map.hasLayer(clickedCounty)) {
