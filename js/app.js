@@ -205,7 +205,7 @@ var state_name = {
 function mapClickAction(e) {
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
-	var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=jsonp&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
+	var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
 console.log(url);
 	//http://www.broadbandmap.gov/geoserver/gis_swat/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gis_swat:caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains%28geom,%20POINT%28-96.4434814453125%2035.764343479667176%29%29&callback=parseResponse&format_options=callback:parseResponse
 	$.ajax({
