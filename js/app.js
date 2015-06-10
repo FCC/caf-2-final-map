@@ -464,7 +464,7 @@ console.log(url);
 			dataType: "jsonp",
 			jsonpCallback: "parseResponse",
 			success: function(data) {
-			alert("data=" + data);
+
 				showSearchedCounty(data);					
 			}
 		});
@@ -472,7 +472,6 @@ console.log(url);
  
  function showSearchedCounty(data) {
  
- alert('fea=' + data + ' f=' + data.totalFeatures);
  
  	//if (data.totalFeatures > 0) {
 	if (map.hasLayer(clickedCounty)) {
