@@ -464,7 +464,7 @@ console.log(url);
 			dataType: "jsonp",
 			jsonpCallback: "parseResponse",
 			success: function(data) {
-				showSearchedCounty(data);					
+				//showSearchedCounty(data);					
 			}
 		});
  }
