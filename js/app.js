@@ -8,9 +8,9 @@
 */
 
 
-var geo_host = '//www.broadbandmap.gov';
-var geo_space = 'gis_swat';
-var geo_output = 'application/json'
+var geo_host = 'https://geo.fcc.gov';
+var geo_space = 'fcc';
+var geo_output = 'application/json';
 
 var nn = 0;
 var map;
@@ -113,41 +113,41 @@ var state_name = {
      baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
      baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
 
-    var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+    var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_1'
      });
 
-    var wms_nonfrozen_class_2 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+    var wms_nonfrozen_class_2 = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_2'
      });
 	 
-	var wms_nonfrozen_class_3 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+	var wms_nonfrozen_class_3 = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_3'
      });
 	 
-	var wms_nonfrozen_class_4 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+	var wms_nonfrozen_class_4 = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_nonfrozen_class_4'
      });
 	 
-	var wms_frozen = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+	var wms_frozen = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_frozen'
     });
-	var wms_counties_merge = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+	var wms_counties_merge = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':caftwo_caf_counties_merge'
     });
-	var wms_state_2010 = L.tileLayer.wms(geo_host +'/geoserver/gwc/service/wms?tiled=true', {
+	var wms_state_2010 = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
          transparent: true,
          layers: geo_space +':state_2010'
@@ -205,13 +205,12 @@ var state_name = {
 function mapClickAction(e) {
 	var lat = e.latlng.lat;
 	var lng = e.latlng.lng;
-	var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
+	var url = geo_host + "/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + lng + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
 
 	$.ajax({
 		type: "GET",
 		url: url,
-		dataType: "jsonp",
-		jsonpCallback: "parseResponse",
+		dataType: "json",
 		success: function(data) {
 			displayMapData(data);
 		}
@@ -404,14 +403,12 @@ function showNationMapData() {
 
                  //map.setView([geo_lat, geo_lon], 12);
 				 
-				var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + geo_lon + " " + geo_lat + "))&callback=parseResponse&format_options=callback:parseResponse";
+				var url = geo_host + "/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + geo_lon + " " + geo_lat + "))&callback=parseResponse&format_options=callback:parseResponse";
 
 	$.ajax({
 			type: "GET",
 			url: url,
-			//dataType: "json",
-			dataType: "jsonp",
-			jsonpCallback: "parseResponse",
+			dataType: "json",
 			success: function(data) {
 
 				showSearchedCounty(data);					
@@ -469,14 +466,12 @@ function showNationMapData() {
 	return;
 	}
 	
-	var url = geo_host + "/geoserver/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + lon + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
+	var url = geo_host + "/" + geo_space+ "/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=" + geo_space + ":caftwo_caf_counties_merge&maxFeatures=1&outputFormat=json&cql_filter=contains(geom,%20POINT(" + lon + " " + lat + "))&callback=parseResponse&format_options=callback:parseResponse";
 
 	$.ajax({
 			type: "GET",
 			url: url,
-			//dataType: "json",
-			dataType: "jsonp",
-			jsonpCallback: "parseResponse",
+			dataType: "json",
 			success: function(data) {
 
 				showSearchedCounty(data);					
