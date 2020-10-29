@@ -101,17 +101,14 @@ var state_name = {
  function createMap() {
  
      L.mapbox.accessToken = 'pk.eyJ1IjoiZmNjIiwiYSI6InBiaGMyLU0ifQ.LOmVYpUCFv2yWpbvxDdQNg';
-     map = L.mapbox.map('map', 'fcc.k74ed5ge', {
-             attributionControl: true,
-             maxZoom: 13
-         })
-         .setView([45, -110], 3);
+    var map = L.mapbox.map('map')
+      .setView([39.5, -98.5], 4);
 
      map.attributionControl.addAttribution('<a href="http://fcc.gov/maps">FCC Maps</a>');
 
-     baseStreet = L.mapbox.tileLayer('fcc.k74ed5ge').addTo(map);
-     baseSatellite = L.mapbox.tileLayer('fcc.k74d7n0g');
-     baseTerrain = L.mapbox.tileLayer('fcc.k74cm3ol');
+     baseStreet = L.mapbox.styleLayer('mapbox://styles/mapbox/light-v10').addTo(map);
+     baseSatellite =  L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v11');
+     baseTerrain = L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-v9');
 
     var wms_nonfrozen_class_1 = L.tileLayer.wms(geo_host +'/gwc/service/wms?tiled=true', {
          format: 'image/png',
@@ -530,6 +527,3 @@ function showNationMapData() {
         $("#download-menu-box").show('fast');
     });
 });
-
-
-
